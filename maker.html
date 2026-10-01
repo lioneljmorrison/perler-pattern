@@ -107,15 +107,37 @@
     </div>
 
     <div class="controls">
-      <label>Width in beads <span class="muted" id="sizeHint"></span>
-        <input type="number" id="width" min="8" max="232" value="58">
-      </label>
       <label>Pegboard size
         <select id="boardSize">
-          <option value="29" selected>29 × 29 (large square)</option>
-          <option value="28">28 × 28</option>
-          <option value="14">14 × 14 (small square)</option>
+          <option value="29x29" selected>29 × 29 (large square)</option>
+          <option value="28x28">28 × 28</option>
+          <option value="14x14">14 × 14 (small square)</option>
+          <option value="custom">Custom…</option>
         </select>
+        <span class="row hidden" id="customBoard">
+          <input type="number" id="boardW" min="2" max="100" value="29" style="width:72px"> ×
+          <input type="number" id="boardH" min="2" max="100" value="29" style="width:72px"> pegs
+        </span>
+      </label>
+      <label>Size by
+        <select id="sizeBy">
+          <option value="boards" selected>Number of boards</option>
+          <option value="beads">Width in beads</option>
+        </select>
+      </label>
+      <label id="boardsCtl">Boards across × down
+        <span class="row">
+          <input type="number" id="boardsX" min="1" max="12" value="2" style="width:72px"> ×
+          <input type="number" id="boardsY" min="1" max="12" value="2" style="width:72px">
+          <select id="fit" title="How the image fits the board area">
+            <option value="contain" selected>Fit whole image</option>
+            <option value="cover">Crop to fill</option>
+            <option value="stretch">Stretch</option>
+          </select>
+        </span>
+      </label>
+      <label id="beadsCtl" class="hidden">Width in beads
+        <input type="number" id="width" min="8" max="600" value="58">
       </label>
       <label>Max colors <span class="val" id="maxColorsVal"></span>
         <input type="range" id="maxColors" min="2" max="40" value="16">
@@ -130,6 +152,7 @@
       <label class="check"><input type="checkbox" id="cleanup" checked> Remove stray single beads</label>
       <label class="check"><input type="checkbox" id="transparent" checked> Skip transparent areas</label>
     </div>
+    <p class="muted" id="sizeHint" style="margin:12px 0 0"></p>
 
     <details>
       <summary>Bead colors to use (<span id="enabledCount"></span>)</summary>
@@ -271,9 +294,30 @@ window.addEventListener('paste', (e) => {
 
 // ---------- Conversion ----------
 // Downscale in halving steps so the browser averages pixels instead of skipping them.
-function sample(w, h) {
-  let src = img, sw = img.naturalWidth, sh = img.naturalHeight;
-  while (sw / 2 > w && sh / 2 > h) {
+// Where the image lands inside the w×h bead area, and which part of the image is used.
+function placement(w, h, fit) {
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const full = { sx: 0, sy: 0, sw: iw, sh: ih, dx: 0, dy: 0, dw: w, dh: h };
+  if (fit === 'stretch') return full;
+  const ia = iw / ih, ta = w / h;
+  if (fit === 'cover') {
+    // Crop the image's long side so it fills every peg.
+    if (ia > ta) { const sw = ih * ta; return { ...full, sx: (iw - sw) / 2, sw }; }
+    const sh = iw / ta; return { ...full, sy: (ih - sh) / 2, sh };
+  }
+  // contain: keep the whole image, center it, leave the margins empty.
+  if (ia > ta) { const dh = Math.max(1, Math.round(w / ia)); return { ...full, dy: Math.floor((h - dh) / 2), dh }; }
+  const dw = Math.max(1, Math.round(h * ia)); return { ...full, dx: Math.floor((w - dw) / 2), dw };
+}
+
+function sample(w, h, fit) {
+  const pl = placement(w, h, fit);
+  // Crop first, then downscale in halving steps so the browser averages pixels instead of skipping them.
+  let src = document.createElement('canvas');
+  src.width = Math.round(pl.sw); src.height = Math.round(pl.sh);
+  src.getContext('2d').drawImage(img, pl.sx, pl.sy, pl.sw, pl.sh, 0, 0, src.width, src.height);
+  let sw = src.width, sh = src.height;
+  while (sw / 2 > pl.dw && sh / 2 > pl.dh) {
     const c = document.createElement('canvas');
     c.width = Math.ceil(sw / 2); c.height = Math.ceil(sh / 2);
     const x = c.getContext('2d'); x.imageSmoothingQuality = 'high';
@@ -282,17 +326,22 @@ function sample(w, h) {
   }
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const x = c.getContext('2d', { willReadFrequently: true }); x.imageSmoothingQuality = 'high';
-  x.drawImage(src, 0, 0, w, h);
-  return x.getImageData(0, 0, w, h).data;
+  x.drawImage(src, pl.dx, pl.dy, pl.dw, pl.dh);
+  const data = x.getImageData(0, 0, w, h).data;
+  // Pegs outside the image (margins from "fit whole image") are always left empty.
+  const outside = new Uint8Array(w * h);
+  for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++)
+    if (xx < pl.dx || xx >= pl.dx + pl.dw || yy < pl.dy || yy >= pl.dy + pl.dh) outside[yy * w + xx] = 1;
+  return { data, outside };
 }
 
-function quantize(data, w, h, colors, mode, skipAlpha) {
+function quantize({ data, outside }, w, h, colors, mode, skipAlpha) {
   const cells = new Int16Array(w * h);
   const buf = new Float32Array(w * h * 3);
   for (let i = 0; i < w * h; i++) { buf[i * 3] = data[i * 4]; buf[i * 3 + 1] = data[i * 4 + 1]; buf[i * 3 + 2] = data[i * 4 + 2]; }
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const i = y * w + x;
-    if (skipAlpha && data[i * 4 + 3] < 128) { cells[i] = -1; continue; }
+    if (outside[i] || (skipAlpha && data[i * 4 + 3] < 128)) { cells[i] = -1; continue; }
     let rgb = [buf[i * 3], buf[i * 3 + 1], buf[i * 3 + 2]].map(v => Math.max(0, Math.min(255, v)));
     if (mode === 'checker') {
       // Ordered 2×2 dither: nudge alternate beads lighter/darker so mid-tones mix optically.
@@ -336,9 +385,8 @@ function generate() {
   const avail = PERLER.filter(c => enabled.has(c.id));
   updateSizeHint();
   if (!img || !avail.length) return;
-  const w = Math.max(8, Math.min(232, +$('width').value || 58));
-  const h = Math.max(1, Math.round(w * img.naturalHeight / img.naturalWidth));
-  const data = sample(w, h);
+  const { w, h, fit } = targetSize();
+  const data = sample(w, h, fit);
   const mode = $('dither').value, skipAlpha = $('transparent').checked;
 
   // Pass 1: pick the most-used colors; pass 2: re-map using only those.
@@ -353,16 +401,41 @@ function generate() {
   for (const v of cells) if (v >= 0) counts.set(v, (counts.get(v) || 0) + 1);
   const colors = [...counts.entries()].sort((a, b) => b[1] - a[1])
     .map(([id, count], i) => ({ ...PERLER[id], count, sym: SYMBOLS[i] }));
-  pattern = { w, h, cells, colors, byId: new Map(colors.map(c => [c.id, c])), boardSize: +$('boardSize').value };
+  pattern = { w, h, cells, colors, byId: new Map(colors.map(c => [c.id, c])), board: boardDims() };
   selectedBoard = null;
   render();
 }
 
+const clampInt = (v, lo, hi, dflt) => { v = Math.round(+v); return Number.isFinite(v) && v > 0 ? Math.max(lo, Math.min(hi, v)) : dflt; };
+
+function boardDims() {
+  const v = $('boardSize').value;
+  if (v !== 'custom') { const [bw, bh] = v.split('x').map(Number); return { bw, bh }; }
+  return { bw: clampInt($('boardW').value, 2, 100, 29), bh: clampInt($('boardH').value, 2, 100, 29) };
+}
+
+// Bead dimensions of the pattern, from either the board count or a bead width.
+function targetSize() {
+  const { bw, bh } = boardDims();
+  if ($('sizeBy').value === 'boards') {
+    const nx = clampInt($('boardsX').value, 1, 12, 2), ny = clampInt($('boardsY').value, 1, 12, 2);
+    return { w: nx * bw, h: ny * bh, fit: $('fit').value };
+  }
+  const w = clampInt($('width').value, 8, 600, 58);
+  const h = img ? Math.max(1, Math.round(w * img.naturalHeight / img.naturalWidth)) : null;
+  return { w, h, fit: 'stretch' };
+}
+
 function updateSizeHint() {
-  const bs = +$('boardSize').value, w = +$('width').value || 0;
-  const h = img ? Math.round(w * img.naturalHeight / img.naturalWidth) : null;
+  const { bw, bh } = boardDims(), { w, h } = targetSize();
+  const boards = $('sizeBy').value === 'boards';
+  $('boardsCtl').classList.toggle('hidden', !boards);
+  $('beadsCtl').classList.toggle('hidden', boards);
+  $('customBoard').classList.toggle('hidden', $('boardSize').value !== 'custom');
   const cm = (n) => (n * 0.5).toFixed(0); // ~5 mm per fused bead
-  $('sizeHint').textContent = h ? `→ ${w}×${h}, ~${cm(w)}×${cm(h)} cm, ${Math.ceil(w / bs)}×${Math.ceil(h / bs)} boards` : `(${bs} = one board wide)`;
+  $('sizeHint').textContent = h
+    ? `Pattern: ${w} × ${h} beads · ${Math.ceil(w / bw)} × ${Math.ceil(h / bh)} boards of ${bw}×${bh} · about ${cm(w)} × ${cm(h)} cm fused`
+    : `Pattern: ${w} beads wide (height follows the image) · boards of ${bw}×${bh}`;
 }
 
 // ---------- Rendering ----------
@@ -392,10 +465,10 @@ function drawPattern(canvas, { x0 = 0, y0 = 0, w = pattern.w, h = pattern.h, cel
     }
   }
   if (grid) {
-    const bs = pattern.boardSize;
+    const { bw, bh } = pattern.board;
     ctx.strokeStyle = css.getPropertyValue('--grid').trim(); ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
-    for (let x = bs; x < w; x += bs) { ctx.beginPath(); ctx.moveTo(pad + x * cell, pad); ctx.lineTo(pad + x * cell, pad + h * cell); ctx.stroke(); }
-    for (let y = bs; y < h; y += bs) { ctx.beginPath(); ctx.moveTo(pad, pad + y * cell); ctx.lineTo(pad + w * cell, pad + y * cell); ctx.stroke(); }
+    for (let x = bw; x < w; x += bw) { ctx.beginPath(); ctx.moveTo(pad + x * cell, pad); ctx.lineTo(pad + x * cell, pad + h * cell); ctx.stroke(); }
+    for (let y = bh; y < h; y += bh) { ctx.beginPath(); ctx.moveTo(pad, pad + y * cell); ctx.lineTo(pad + w * cell, pad + y * cell); ctx.stroke(); }
     ctx.setLineDash([]);
   }
   if (axes) {
@@ -411,13 +484,13 @@ function drawPattern(canvas, { x0 = 0, y0 = 0, w = pattern.w, h = pattern.h, cel
 
 function render() {
   $('out').classList.remove('hidden');
-  const { w, h, colors, boardSize: bs } = pattern;
+  const { w, h, colors, board: { bw, bh } } = pattern;
   const total = colors.reduce((s, c) => s + c.count, 0);
-  const bx = Math.ceil(w / bs), by = Math.ceil(h / bs);
+  const bx = Math.ceil(w / bw), by = Math.ceil(h / bh);
 
   $('stats').innerHTML = '';
   for (const [v, l] of [[`${w} × ${h}`, 'beads'], [total.toLocaleString(), 'total beads'], [colors.length, 'colors'],
-                        [`${bx} × ${by}`, `${bs}×${bs} boards`], [`~${(w * 0.5).toFixed(0)} × ${(h * 0.5).toFixed(0)} cm`, 'fused size']]) {
+                        [`${bx} × ${by}`, `${bw}×${bh} boards`], [`~${(w * 0.5).toFixed(0)} × ${(h * 0.5).toFixed(0)} cm`, 'fused size']]) {
     const d = el('div'); d.append(el('b', null, v), el('span', null, l)); $('stats').append(d);
   }
   drawMain();
@@ -445,7 +518,7 @@ function drawMain() {
 function renderSteps(bx, by, colors) {
   const darkest = [...colors].sort((a, b) => a.lab[0] - b.lab[0]).slice(0, 2).map(c => c.name);
   const steps = [
-    `Gather ${bx * by} pegboard${bx * by > 1 ? 's' : ''} (${pattern.boardSize}×${pattern.boardSize}) and lock them together ${bx} wide by ${by} tall. Square pegboards interlock; check the edges line up so rows don't drift.`,
+    `Gather ${bx * by} pegboard${bx * by > 1 ? 's' : ''} (${pattern.board.bw}×${pattern.board.bh} pegs) and lock them together ${bx} wide by ${by} tall. Square pegboards interlock; check the edges line up so rows don't drift.`,
     `Sort your beads by color using the shopping list. Each color has a symbol used in the board charts.`,
     `Work one board at a time, starting at Board (1,1) in the top-left corner and moving right along each board row, then down.`,
     `On each board, place the darkest colors first (${darkest.join(', ')}). They act as landmarks so you don't lose count, then fill the lighter areas around them.`,
@@ -473,8 +546,8 @@ function renderBoardPicker(bx, by) {
 }
 
 function boardBounds(r, c) {
-  const bs = pattern.boardSize, x0 = c * bs, y0 = r * bs;
-  return { x0, y0, w: Math.min(bs, pattern.w - x0), h: Math.min(bs, pattern.h - y0) };
+  const { bw, bh } = pattern.board, x0 = c * bw, y0 = r * bh;
+  return { x0, y0, w: Math.min(bw, pattern.w - x0), h: Math.min(bh, pattern.h - y0) };
 }
 function boardCount(r, c) {
   const { x0, y0, w, h } = boardBounds(r, c); let n = 0;
@@ -529,8 +602,8 @@ $('cv').addEventListener('mousemove', (e) => {
   const rect = e.target.getBoundingClientRect(), cell = +$('zoom').value;
   const x = Math.floor((e.clientX - rect.left) / cell), y = Math.floor((e.clientY - rect.top) / cell);
   if (x < 0 || y < 0 || x >= pattern.w || y >= pattern.h) { tip.style.display = 'none'; return; }
-  const v = pattern.cells[y * pattern.w + x], bs = pattern.boardSize;
-  tip.textContent = `Row ${y + 1}, col ${x + 1} · Board (${Math.floor(y / bs) + 1},${Math.floor(x / bs) + 1}) · ` +
+  const v = pattern.cells[y * pattern.w + x], { bw, bh } = pattern.board;
+  tip.textContent = `Row ${y + 1}, col ${x + 1} · Board (${Math.floor(y / bh) + 1},${Math.floor(x / bw) + 1}) · ` +
     (v < 0 ? 'empty' : pattern.byId.get(v).name);
   tip.style.display = 'block';
   tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
@@ -538,10 +611,10 @@ $('cv').addEventListener('mousemove', (e) => {
 });
 $('cv').addEventListener('mouseleave', () => { tip.style.display = 'none'; });
 $('cv').addEventListener('click', (e) => {
-  const rect = e.target.getBoundingClientRect(), cell = +$('zoom').value, bs = pattern.boardSize;
-  const r = Math.floor((e.clientY - rect.top) / cell / bs), c = Math.floor((e.clientX - rect.left) / cell / bs);
+  const rect = e.target.getBoundingClientRect(), cell = +$('zoom').value, { bw, bh } = pattern.board;
+  const r = Math.floor((e.clientY - rect.top) / cell / bh), c = Math.floor((e.clientX - rect.left) / cell / bw);
   selectedBoard = [r, c];
-  renderBoardPicker(Math.ceil(pattern.w / bs), Math.ceil(pattern.h / bs)); renderBoard(r, c);
+  renderBoardPicker(Math.ceil(pattern.w / bw), Math.ceil(pattern.h / bh)); renderBoard(r, c);
   $('boardDetail').scrollIntoView({ behavior: 'smooth' });
 });
 
@@ -556,12 +629,12 @@ $('dlPng').onclick = () => {
   c.toBlob(b => download('perler-pattern.png', b));
 };
 $('dlJson').onclick = () => {
-  const { w, h, cells, colors, boardSize } = pattern;
+  const { w, h, cells, colors, board: { bw, bh } } = pattern;
   const sym = (v) => v < 0 ? '.' : pattern.byId.get(v).sym;
   const rows = []; for (let y = 0; y < h; y++) { let s = ''; for (let x = 0; x < w; x++) s += sym(cells[y * w + x]); rows.push(s); }
   const out = {
-    width: w, height: h, boardSize,
-    boards: { cols: Math.ceil(w / boardSize), rows: Math.ceil(h / boardSize) },
+    width: w, height: h, boardSize: { cols: bw, rows: bh },
+    boards: { cols: Math.ceil(w / bw), rows: Math.ceil(h / bh) },
     rowFormat: "One character per bead; look it up in 'legend'. '.' = empty peg.",
     legend: Object.fromEntries(colors.map(c => [c.sym, { name: c.name, hex: c.hex, count: c.count }])),
     rows,
@@ -571,8 +644,9 @@ $('dlJson').onclick = () => {
 $('print').onclick = () => window.print();
 
 // ---------- Wire up ----------
-for (const id of ['width', 'boardSize', 'maxColors', 'dither', 'cleanup', 'transparent'])
-  $(id).addEventListener(id === 'width' || id === 'maxColors' ? 'input' : 'change', () => {
+const typed = ['width', 'boardsX', 'boardsY', 'boardW', 'boardH', 'maxColors'];
+for (const id of [...typed, 'boardSize', 'sizeBy', 'fit', 'dither', 'cleanup', 'transparent'])
+  $(id).addEventListener(typed.includes(id) ? 'input' : 'change', () => {
     $('maxColorsVal').textContent = $('maxColors').value; generate();
   });
 $('maxColorsVal').textContent = $('maxColors').value;
