@@ -1,0 +1,945 @@
+{
+  "title": "Sailor Moon Perler Bead Pattern",
+  "source": "Sailor Moon Perler Bead Pattern.pdf",
+  "about": "Partial grids extracted from an AI chat transcript. The PDF does not contain a full-canvas pattern: it gives six focal-area grids plus prose for the rest.",
+  "canvas": {
+    "declared": [
+      {
+        "cols": 104,
+        "rows": 116,
+        "note": "First answer; ~122 rows at the thumb tip."
+      },
+      {
+        "cols": 112,
+        "rows": 112,
+        "note": "Later 4\u00d74 board plan with 28\u00d728 boards; thumb extends to row 120."
+      }
+    ],
+    "boardSize": 28,
+    "boardGrid": {
+      "cols": 4,
+      "rows": 4
+    }
+  },
+  "rowFormat": "Each row's 'beads' string has one character per bead; look it up in the section's legend. Rows shorter than 'width' are padded on the right with 'padWith' (null = empty/unknown).",
+  "palette": {
+    "lightBlue": {
+      "name": "Light Blue",
+      "role": "Sky & water base",
+      "hex": "#0099D8"
+    },
+    "white": {
+      "name": "White",
+      "role": "Highlights, aura, catchlights",
+      "hex": "#FFFFFF"
+    },
+    "yellow": {
+      "name": "Yellow / Pastel Yellow",
+      "role": "Primary hair highlight",
+      "hex": "#FEE135"
+    },
+    "cheddar": {
+      "name": "Cheddar / Orange",
+      "role": "Hair midtone warmth",
+      "hex": "#F58220"
+    },
+    "magenta": {
+      "name": "Magenta",
+      "role": "Hair core shadow / bang spikes",
+      "hex": "#E0115F"
+    },
+    "hotPink": {
+      "name": "Hot Pink",
+      "role": "Lash accents / pink shadow",
+      "hex": "#FF3EA5",
+      "note": "Not in the PDF's hex table; approximate value."
+    },
+    "peach": {
+      "name": "Peach",
+      "role": "Skin midtone",
+      "hex": "#F5B895"
+    },
+    "cream": {
+      "name": "Cream / Light Peach",
+      "role": "Skin highlight",
+      "hex": "#FDEBD0"
+    },
+    "lightPink": {
+      "name": "Light Pink",
+      "role": "Skin blush / iris reflection",
+      "hex": "#F8B9D4"
+    },
+    "midnight": {
+      "name": "Midnight / Blueberry",
+      "role": "Right silhouette / deep navy",
+      "hex": "#0B1B3D"
+    },
+    "plum": {
+      "name": "Dark Purple / Plum",
+      "role": "Eye contour, lashes, outlines",
+      "hex": "#301934"
+    },
+    "turquoise": {
+      "name": "Turquoise / Mint",
+      "role": "Iris glow (midtone)",
+      "hex": "#40E0D0"
+    },
+    "pastelGreen": {
+      "name": "Pastel Green / Sour Apple",
+      "role": "Iris sparkle",
+      "hex": "#76FF7A"
+    },
+    "cranberry": {
+      "name": "Bright Red / Cranberry",
+      "role": "Fingernails & lip accent",
+      "hex": "#C41E3A"
+    }
+  },
+  "boards": [
+    {
+      "board": "1,1",
+      "summary": "Top-left hair cluster. Cols 01\u201310 solid sky (B); cols 11\u201328 hair edge with a white/blue dithered halo, Y/O checkerboard inside."
+    },
+    {
+      "board": "1,2",
+      "summary": "Crown & bang roots.",
+      "section": "board-1-2"
+    },
+    {
+      "board": "1,3",
+      "summary": "Rows 001\u2013015 solid sky. A white diagonal from (row 16, col 01) to (row 28, col 20) marks the head edge; dithered Y, O and scattered A below."
+    },
+    {
+      "board": "1,4",
+      "summary": "Solid Light Blue sky corner."
+    },
+    {
+      "board": "2,1",
+      "summary": "Cols 01\u201308 solid sky; cols 09\u201328 bang tips shifting from Y/O into light pink and peach over the skin."
+    },
+    {
+      "board": "2,2",
+      "summary": "Left eye (rows 030\u2013044) and nose bridge; rows 045\u2013056 peach/cream checkerboard with light-pink blush.",
+      "section": "left-eye"
+    },
+    {
+      "board": "2,3",
+      "summary": "Right eye (rows 032\u2013046, cols 04\u201322); cols 23\u201328 solid midnight shadow block.",
+      "section": "right-eye"
+    },
+    {
+      "board": "2,4",
+      "summary": "Cols 01\u201310 solid midnight; cols 11\u201328 back to solid Light Blue."
+    },
+    {
+      "board": "3,1",
+      "summary": "Upper half cheek dither (peach/pink); lower half hand entering, outlined plum/midnight, filled peach with cream highlights."
+    },
+    {
+      "board": "3,2",
+      "summary": "Nose base and mouth (scattered pink/magenta); back of the hand and knuckles running diagonally down, cream on the index tendon."
+    },
+    {
+      "board": "3,3",
+      "summary": "Jawline upper-left; solid Light Blue field lower-right."
+    },
+    {
+      "board": "3,4",
+      "summary": "Solid Light Blue."
+    },
+    {
+      "board": "4,1",
+      "summary": "Slender diagonal peach fingers with 1-bead plum/midnight outlines on blue; 2\u00d72 cranberry nails around rows 098\u2013104."
+    },
+    {
+      "board": "4,2",
+      "summary": "Fingers and thumb overhang (rows 113\u2013120, cols 35\u201348).",
+      "section": "board-4-2"
+    },
+    {
+      "board": "4,3",
+      "summary": "Solid Light Blue."
+    },
+    {
+      "board": "4,4",
+      "summary": "Solid Light Blue."
+    }
+  ],
+  "sections": [
+    {
+      "id": "left-eye",
+      "title": "Left Eye Focal Grid",
+      "description": "The prominent eye on the left side, from the upper lash arc down through the lower lash spikes.",
+      "declaredSize": {
+        "cols": 24,
+        "rows": 14
+      },
+      "placement": "Board (2,2), roughly rows 030\u2013044 / board columns 05\u201328 (from the prose).",
+      "legend": {
+        ".": {
+          "color": "peach",
+          "inferred": true,
+          "note": "Legend says 'Background / Skin Base'; skin is the likely surround here."
+        },
+        "K": {
+          "color": "plum",
+          "note": "Dark Iris / Shadow: Dark Blue, Blueberry, or Dark Purple"
+        },
+        "M": {
+          "color": "hotPink",
+          "note": "Accent Shadow / Lash Spikes: Hot Pink or Magenta"
+        },
+        "W": {
+          "color": "white"
+        },
+        "T": {
+          "color": "turquoise"
+        },
+        "G": {
+          "color": "pastelGreen"
+        },
+        "P": {
+          "color": "lightPink",
+          "note": "Iris Reflection"
+        }
+      },
+      "width": 23,
+      "height": 14,
+      "firstRow": 1,
+      "padWith": ".",
+      "rows": [
+        {
+          "n": 1,
+          "beads": ".......KKKKKKKK........"
+        },
+        {
+          "n": 2,
+          "beads": ".....KKMMMMMMMKKK......"
+        },
+        {
+          "n": 3,
+          "beads": "...KKMMKKKKKKKMMKK....."
+        },
+        {
+          "n": 4,
+          "beads": ".KKMKKKKKKKKKKKKMKK...."
+        },
+        {
+          "n": 5,
+          "beads": "KMKKWWWWKKKKKKKKWWKK..."
+        },
+        {
+          "n": 6,
+          "beads": "MKWWWWWKKTTTTKKWWWWKM.."
+        },
+        {
+          "n": 7,
+          "beads": "KWWWWWKKTGGGTKKPPWWWK.."
+        },
+        {
+          "n": 8,
+          "beads": ".WWWWKKTGWWGTKKPPPWWKM."
+        },
+        {
+          "n": 9,
+          "beads": "..WWKKMTGWWGTMKKPPWK..."
+        },
+        {
+          "n": 10,
+          "beads": "...KKMMTTGGTTMMKKKK...."
+        },
+        {
+          "n": 11,
+          "beads": "..KM.KMMTTTTMMK.MK....."
+        },
+        {
+          "n": 12,
+          "beads": ".KM...KMMMMMMK...KM...."
+        },
+        {
+          "n": 13,
+          "beads": ".M.....KMKMKM.....M...."
+        },
+        {
+          "n": 14,
+          "beads": "........M.M.M.........."
+        }
+      ],
+      "notes": [
+        "Declared 24 columns; rows in the PDF are 23 beads wide. Shorter rows are padded on the right with '.' (assumed background)."
+      ]
+    },
+    {
+      "id": "hand-thumb",
+      "title": "Foreground Hand & Breaking Thumb",
+      "description": "The hand, with the thumb hanging past the bottom edge of the main canvas.",
+      "declaredSize": {
+        "cols": 22,
+        "rows": 24
+      },
+      "placement": "Bottom-left third; rows 19\u201324 hang below the canvas edge.",
+      "legend": {
+        ".": {
+          "color": "lightBlue",
+          "inferred": true,
+          "note": "Legend says 'Background / Skin Base'; the hand sits on the blue field."
+        },
+        "K": {
+          "color": "plum",
+          "note": "Dark Iris / Shadow: Dark Blue, Blueberry, or Dark Purple"
+        },
+        "M": {
+          "color": "hotPink",
+          "note": "Accent Shadow: Hot Pink or Magenta"
+        },
+        "S": {
+          "color": "peach",
+          "note": "Hand Skin Base"
+        },
+        "H": {
+          "color": "cream",
+          "note": "Skin Highlight: Cream / White"
+        },
+        "O": {
+          "color": "cranberry",
+          "note": "In this legend O is Nail Polish: Bright Red / Cranberry"
+        }
+      },
+      "canvasEdgeAfterRow": 18,
+      "width": 23,
+      "height": 24,
+      "firstRow": 1,
+      "padWith": ".",
+      "rows": [
+        {
+          "n": 1,
+          "beads": "..................KKK.."
+        },
+        {
+          "n": 2,
+          "beads": "................KKSSK.."
+        },
+        {
+          "n": 3,
+          "beads": "..............KKSSSK..."
+        },
+        {
+          "n": 4,
+          "beads": "............KKSSSSK...."
+        },
+        {
+          "n": 5,
+          "beads": "..........KKSSSSSK....."
+        },
+        {
+          "n": 6,
+          "beads": "........KKSSSSSSK......"
+        },
+        {
+          "n": 7,
+          "beads": "......KKSSSSSSSK......."
+        },
+        {
+          "n": 8,
+          "beads": "....KKSSSSSSSSK........"
+        },
+        {
+          "n": 9,
+          "beads": "..KKSSSSSSSSSK........."
+        },
+        {
+          "n": 10,
+          "beads": ".KMSSSSSSSSSK.........."
+        },
+        {
+          "n": 11,
+          "beads": "KMSSHHSSSSSK..........."
+        },
+        {
+          "n": 12,
+          "beads": "KMSHHHSSSSK............"
+        },
+        {
+          "n": 13,
+          "beads": ".KMSHSSSSK............."
+        },
+        {
+          "n": 14,
+          "beads": "..KMSSSSK.............."
+        },
+        {
+          "n": 15,
+          "beads": "...KMSSK..............."
+        },
+        {
+          "n": 16,
+          "beads": "....KMK................"
+        },
+        {
+          "n": 17,
+          "beads": "....KMSK..............."
+        },
+        {
+          "n": 18,
+          "beads": "....KMSSK......."
+        },
+        {
+          "n": 19,
+          "beads": "....KMSSK......."
+        },
+        {
+          "n": 20,
+          "beads": "....KMSSK......."
+        },
+        {
+          "n": 21,
+          "beads": ".....KOOK......."
+        },
+        {
+          "n": 22,
+          "beads": ".....KOOK......."
+        },
+        {
+          "n": 23,
+          "beads": "......KK........"
+        },
+        {
+          "n": 24,
+          "beads": "................"
+        }
+      ],
+      "notes": [
+        "Declared 22 columns; rows in the PDF are 16, 23 beads wide. Shorter rows are padded on the right with '.' (assumed background)."
+      ]
+    },
+    {
+      "id": "right-eye",
+      "title": "Right Eye & Shadow Block",
+      "description": "The angled right eye where it meets the deep shadow field on the right edge of the frame.",
+      "declaredSize": {
+        "cols": 24,
+        "rows": 14
+      },
+      "placement": "Board (2,3), with the shadow block running into Board (2,4).",
+      "legend": {
+        ".": {
+          "color": "peach",
+          "inferred": true,
+          "note": "Legend says 'Background / Skin Base'; skin is the likely surround here."
+        },
+        "B": {
+          "color": "midnight",
+          "note": "In this legend B is Solid Deep Shadow: Dark Blue / Blueberry / Dark Purple"
+        },
+        "K": {
+          "color": "plum",
+          "note": "Dark Iris / Eyelash Contour: Midnight Blue / Plum"
+        },
+        "M": {
+          "color": "hotPink",
+          "note": "Lash Accent / Pink Shadow"
+        },
+        "W": {
+          "color": "white"
+        },
+        "T": {
+          "color": "turquoise"
+        },
+        "G": {
+          "color": "pastelGreen"
+        },
+        "P": {
+          "color": "lightPink",
+          "note": "Not in this section's legend; carried over from the left-eye legend."
+        }
+      },
+      "width": 24,
+      "height": 14,
+      "firstRow": 1,
+      "padWith": ".",
+      "rows": [
+        {
+          "n": 1,
+          "beads": "......KKKKKKK.....BBBBBB"
+        },
+        {
+          "n": 2,
+          "beads": "....KKMMMMMKKK....BBBBBB"
+        },
+        {
+          "n": 3,
+          "beads": "..KKMMKKKKKMMKK...BBBBBB"
+        },
+        {
+          "n": 4,
+          "beads": ".KKMKKKKKKKKMKK...BBBBBB"
+        },
+        {
+          "n": 5,
+          "beads": "KMKKWWKKKKKKWKK...BBBBBB"
+        },
+        {
+          "n": 6,
+          "beads": "MKWWWKTTTTKKWWKM..BBBBBB"
+        },
+        {
+          "n": 7,
+          "beads": "KWWWKTGGGTKPWWWK..BBBBBB"
+        },
+        {
+          "n": 8,
+          "beads": ".WWKTGWWGTKPPWWKM.BBBBBB"
+        },
+        {
+          "n": 9,
+          "beads": "..WKMTGWTMKPPWK...BBBBBB"
+        },
+        {
+          "n": 10,
+          "beads": "...KMTTTTMMKKK....BBBBBB"
+        },
+        {
+          "n": 11,
+          "beads": "..KM.MMMMMK.MK....BBBBBB"
+        },
+        {
+          "n": 12,
+          "beads": ".KM...KMMK...KM...BBBBBB"
+        },
+        {
+          "n": 13,
+          "beads": ".M.....MM.....M...BBBBBB"
+        },
+        {
+          "n": 14,
+          "beads": ".......MM.........BBBBBB"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "hair-cluster",
+      "title": "Hair Dithering & Bangs Cluster",
+      "description": "Upper-left quadrant above the eyes: yellow strands, warm orange, and magenta split lines.",
+      "declaredSize": {
+        "cols": 24,
+        "rows": 14
+      },
+      "placement": "Upper-left quadrant (exact position not given).",
+      "legend": {
+        ".": {
+          "color": "lightBlue",
+          "inferred": true,
+          "note": "Legend says 'Background / Skin Base'; sky is the likely surround at the hair edge."
+        },
+        "Y": {
+          "color": "yellow"
+        },
+        "O": {
+          "color": "cheddar",
+          "note": "In this legend O is Hair Midtone: Cheddar / Orange"
+        },
+        "A": {
+          "color": "magenta",
+          "note": "Hair Core Shadow Line"
+        },
+        "M": {
+          "color": "hotPink",
+          "note": "Not in this section's legend; carried over from the earlier legend (Hot Pink / Magenta)."
+        }
+      },
+      "width": 24,
+      "height": 14,
+      "firstRow": 1,
+      "padWith": ".",
+      "rows": [
+        {
+          "n": 1,
+          "beads": "..YYYYOYYYYOYYYYOOYY...."
+        },
+        {
+          "n": 2,
+          "beads": ".YYOYYYOYYYOYYYOOOYYY..."
+        },
+        {
+          "n": 3,
+          "beads": "YYOOYYOOYYOOYYOOOYYYYY.."
+        },
+        {
+          "n": 4,
+          "beads": "YOOOYOOOYOOOYOOOYYAAYYY."
+        },
+        {
+          "n": 5,
+          "beads": "YOOYOOOYOOOYOOOYYAAAYYYY"
+        },
+        {
+          "n": 6,
+          "beads": "OOYYOOYYOOYYOOYYAAAOYYYY"
+        },
+        {
+          "n": 7,
+          "beads": "OYYYOYYYOYYYOYYAAAOOYYYY"
+        },
+        {
+          "n": 8,
+          "beads": "YYYYYYYYYYYYYYAAAOOYYY.."
+        },
+        {
+          "n": 9,
+          "beads": "YYYMMYYYYYYYYAAAOOYY...."
+        },
+        {
+          "n": 10,
+          "beads": "YYMMMMYYYYYYAAAOOY......"
+        },
+        {
+          "n": 11,
+          "beads": ".YYMMYYYYYYAAAOY........"
+        },
+        {
+          "n": 12,
+          "beads": "..YYYYYYYYAAAY.........."
+        },
+        {
+          "n": 13,
+          "beads": "...YYYYYYAAA............"
+        },
+        {
+          "n": 14,
+          "beads": "....YYYYAAA............."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "board-1-2",
+      "title": "Board (1,2): Crown & Bang Core",
+      "description": "Top-center board: the hair crown, bang roots, and magenta strand lines.",
+      "declaredSize": {
+        "cols": 28,
+        "rows": 28
+      },
+      "placement": "Rows 001\u2013028, columns 029\u2013056.",
+      "legend": {
+        "B": {
+          "color": "lightBlue"
+        },
+        "W": {
+          "color": "white"
+        },
+        "Y": {
+          "color": "yellow"
+        },
+        "O": {
+          "color": "cheddar"
+        },
+        "A": {
+          "color": "magenta"
+        }
+      },
+      "width": 26,
+      "height": 28,
+      "firstRow": 1,
+      "padWith": null,
+      "rows": [
+        {
+          "n": 1,
+          "beads": "BBBWYYYYOYYYYOYYYYOOYYYYBB"
+        },
+        {
+          "n": 2,
+          "beads": "BBWYYOYYYOYYYOYYYOOOYYYYYB"
+        },
+        {
+          "n": 3,
+          "beads": "BWYYOOYYOOYYOOYYOOOYYYYYYW"
+        },
+        {
+          "n": 4,
+          "beads": "WYOOOYOOOYOOOYOOOYYAAYYYYY"
+        },
+        {
+          "n": 5,
+          "beads": "YYOOYOOOYOOOYOOOYYAAAYYYYY"
+        },
+        {
+          "n": 6,
+          "beads": "YOOYYOOYYOOYYOOYYAAAOYYYYY"
+        },
+        {
+          "n": 7,
+          "beads": "OOYYYOYYYOYYYOYYAAAOOYYYYY"
+        },
+        {
+          "n": 8,
+          "beads": "OYYYYYYYYYYYYYYAAAOOYYYYYO"
+        },
+        {
+          "n": 9,
+          "beads": "YYYAAYYYYYYYYYAAAOOYYYYOOO"
+        },
+        {
+          "n": 10,
+          "beads": "YYAAAAYYYYYYYAAAOOYYYOOOOY"
+        },
+        {
+          "n": 11,
+          "beads": "YAAAAAAYYYYYAAAOOYYOOOOYYY"
+        },
+        {
+          "n": 12,
+          "beads": "YYAAAAYYYYYAAAOYYOOOYYYYYY"
+        },
+        {
+          "n": 13,
+          "beads": "YYYAAYYYYYAAAYYOOOYYYYYYYY"
+        },
+        {
+          "n": 14,
+          "beads": "YYYYYYYYYAAAYOOOYYYYYYYYYY"
+        },
+        {
+          "n": 15,
+          "beads": "YYYYYYYYAAAOOOYYYYYYYYYYYY"
+        },
+        {
+          "n": 16,
+          "beads": "YYYYYYYAAAOOYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 17,
+          "beads": "YYYYYYAAAOYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 18,
+          "beads": "YYYYYAAAYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 19,
+          "beads": "YYYYAAAYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 20,
+          "beads": "YYYAAAYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 21,
+          "beads": "YYAAAYYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 22,
+          "beads": "YAAAYYYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 23,
+          "beads": "AAAYYYYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 24,
+          "beads": "AAYYYYYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 25,
+          "beads": "AYYYYYYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 26,
+          "beads": "YYYYYYYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 27,
+          "beads": "YYYYYYYYYYYYYYYYYYYYYYYYYY"
+        },
+        {
+          "n": 28,
+          "beads": "YYYYYYYYYYYYYYYYYYYYYYYYYY"
+        }
+      ],
+      "notes": [
+        "Declared 28 columns; rows in the PDF are 26 beads wide. Shorter rows are padded on the right with empty cells (unknown)."
+      ]
+    },
+    {
+      "id": "board-4-2",
+      "title": "Board (4,2): Hand, Fingers & Overhang",
+      "description": "Bottom-center board: the finger reaching down-left and the thumb extension past the canvas baseline.",
+      "declaredSize": {
+        "cols": 28,
+        "rows": 36
+      },
+      "placement": "Rows 085\u2013120, columns 029\u2013056; rows 113\u2013120 hang below the canvas baseline.",
+      "legend": {
+        ".": {
+          "color": null,
+          "note": "Transparent / not on this board"
+        },
+        "B": {
+          "color": "lightBlue"
+        },
+        "K": {
+          "color": "plum",
+          "note": "Dark Purple / Plum / Midnight"
+        },
+        "S": {
+          "color": "peach"
+        },
+        "R": {
+          "color": "cranberry"
+        }
+      },
+      "canvasEdgeAfterRow": 112,
+      "width": 28,
+      "height": 36,
+      "firstRow": 85,
+      "padWith": null,
+      "rows": [
+        {
+          "n": 85,
+          "beads": "BBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 86,
+          "beads": "BBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 87,
+          "beads": "BBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 88,
+          "beads": "BBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 89,
+          "beads": "BBBBBBBBBBBBBBBBBBBBKKKKBBBB"
+        },
+        {
+          "n": 90,
+          "beads": "BBBBBBBBBBBBBBBBBBKKSSSKKBBB"
+        },
+        {
+          "n": 91,
+          "beads": "BBBBBBBBBBBBBBBBKKSSSSSSKBBB"
+        },
+        {
+          "n": 92,
+          "beads": "BBBBBBBBBBBBBBKKSSSSSSSSKBBB"
+        },
+        {
+          "n": 93,
+          "beads": "BBBBBBBBBBBBKKSSSSSSSSSSKBBB"
+        },
+        {
+          "n": 94,
+          "beads": "BBBBBBBBBBKKSSSSSSSSSSSSKBBB"
+        },
+        {
+          "n": 95,
+          "beads": "BBBBBBBBKKSSSSSSSSSSSSSKBBBB"
+        },
+        {
+          "n": 96,
+          "beads": "BBBBBBKKSSSSSSSSSSSSSSKBBBBB"
+        },
+        {
+          "n": 97,
+          "beads": "BBBBKKSSSSSSSSSSSSSSSKBBBBBB"
+        },
+        {
+          "n": 98,
+          "beads": "BBKKSSSSSSSSSSSSSSSKBBBBBBBB"
+        },
+        {
+          "n": 99,
+          "beads": "BKKSSSSSSSSSSSSSSSKBBBBBBBBB"
+        },
+        {
+          "n": 100,
+          "beads": "KKSSSSSSSSSSSSSSSKBBBBBBBBBB"
+        },
+        {
+          "n": 101,
+          "beads": "KSSSSSSSSSSSSSSSKBBBBBBBBBBB"
+        },
+        {
+          "n": 102,
+          "beads": "KSSSSSSSSSSSSSSKBBBBBBBBBBBB"
+        },
+        {
+          "n": 103,
+          "beads": "KSSSSSSSSSSSSSKBBBBBBBBBBBBB"
+        },
+        {
+          "n": 104,
+          "beads": "KSSSSSSSSSSSSKBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 105,
+          "beads": "KSSSSSSSSSSSKBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 106,
+          "beads": "KSSSSSSSSSSKBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 107,
+          "beads": "KSSSSSSSSSKBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 108,
+          "beads": "KSSSSSSSSKBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 109,
+          "beads": "KSSSSSSSKBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 110,
+          "beads": "KSSSSSSKBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 111,
+          "beads": "KSSSSSKBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 112,
+          "beads": "KSSSSKBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 113,
+          "beads": "KSSSSKBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 114,
+          "beads": "KSSSSKBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 115,
+          "beads": ".KSSSKBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 116,
+          "beads": ".KSSSKBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 117,
+          "beads": "..KRRKBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 118,
+          "beads": "..KRRKBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 119,
+          "beads": "...KKBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "n": 120,
+          "beads": "....BBBBBBBBBBBBBBBBBBBBBBBB"
+        }
+      ],
+      "notes": []
+    }
+  ]
+}
