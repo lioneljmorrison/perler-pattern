@@ -323,7 +323,7 @@ def photo_preview():
         subprocess.run(["pdfimages", "-png", "-f", "1", "-l", "1", str(PDF), f"{tmp}/img"], check=True)
         im = Image.open(f"{tmp}/img-000.png").convert("RGB")
     # The bead piece occupies this box in the 82×84 photo (found by its saturated pixels).
-    piece = im.crop((18, 13, 66, 69))
+    piece = im.crop((18, 14, 66, 69))
     cols, rows = 104, 121  # The PDF's first estimate: 104 wide, ~122 at the thumb tip.
     piece = piece.resize((cols, rows), Image.BICUBIC)
 

@@ -82,6 +82,11 @@
     position: fixed; pointer-events: none; background: var(--text); color: var(--bg);
     font-size: 12px; padding: 4px 8px; border-radius: 6px; display: none; z-index: 10;
   }
+  .previews { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 12px; }
+  .preview { flex: 1 1 300px; min-width: 0; }
+  .preview canvas { display: block; width: 100%; max-width: 480px; height: auto; border-radius: 6px; }
+  .preview h3 { font-size: 15px; margin: 0 0 4px; }
+  .preview p { font-size: 13px; }
 </style>
 </head>
 <body class="dim-inferred">
@@ -94,6 +99,12 @@
     <label><input type="checkbox" id="dimInferred" checked> Fade inferred background</label>
     <label>Bead size <input type="range" id="size" min="10" max="26" value="16"></label>
   </div>
+
+  <section class="card">
+    <h2>Finished piece</h2>
+    <p class="muted">The left preview is everything the PDF actually specifies. The right one is a rough render from its photo, for the overall look.</p>
+    <div class="previews" id="previews"></div>
+  </section>
 
   <section class="card">
     <h2>Board layout</h2>
@@ -208,6 +219,41 @@ for (const s of P.sections) {
 const grids = () => document.querySelectorAll('.grid');
 $('showSymbols').onchange = (e) => grids().forEach(g => g.classList.toggle('symbols', e.target.checked));
 $('dimInferred').onchange = (e) => document.body.classList.toggle('dim-inferred', e.target.checked);
+// Full-canvas previews
+function drawPreview(pv) {
+  const cell = 8, r = cell / 2;
+  const cv = document.createElement('canvas');
+  cv.width = pv.width * cell; cv.height = pv.height * cell;
+  const ctx = cv.getContext('2d');
+  const css = getComputedStyle(document.documentElement);
+  // Hatch pattern for unspecified cells.
+  const hp = document.createElement('canvas'); hp.width = hp.height = 6;
+  const hctx = hp.getContext('2d');
+  hctx.strokeStyle = css.getPropertyValue('--empty').trim() || '#ddd'; hctx.lineWidth = 1.5;
+  hctx.beginPath(); hctx.moveTo(0, 6); hctx.lineTo(6, 0); hctx.stroke();
+  ctx.fillStyle = ctx.createPattern(hp, 'repeat');
+  pv.rows.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch === '.') { ctx.fillRect(x * cell, y * cell, cell, cell); return; }
+    ctx.save();
+    ctx.fillStyle = P.palette[P.previewKey[ch]].hex;
+    ctx.beginPath(); ctx.arc(x * cell + r, y * cell + r, r - 0.4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.beginPath(); ctx.arc(x * cell + r, y * cell + r, r * 0.3, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }));
+  if (pv.canvasEdgeAfterRow) {
+    ctx.strokeStyle = css.getPropertyValue('--edge').trim(); ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+    ctx.beginPath(); ctx.moveTo(0, pv.canvasEdgeAfterRow * cell); ctx.lineTo(cv.width, pv.canvasEdgeAfterRow * cell); ctx.stroke();
+  }
+  return cv;
+}
+for (const pv of P.previews) {
+  const d = el('div', 'preview');
+  const meta = `${pv.width} × ${pv.height} beads` + (pv.specifiedPercent != null ? ` · ${pv.specifiedPercent}% of beads specified` : '');
+  d.append(el('h3', null, pv.title), el('p', 'muted', meta), drawPreview(pv), el('p', 'muted', pv.description));
+  $('previews').append(d);
+}
+
 const setSize = (v) => document.documentElement.style.setProperty('--bead', v + 'px');
 $('size').oninput = (e) => setSize(e.target.value);
 setSize($('size').value);
