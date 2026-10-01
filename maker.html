@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perler Pattern Maker</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --surface: #ffffff; --text: #1d1c1a; --muted: #6b6862;
+    --border: #dedbd4; --empty: #ebe8e1; --accent: #0077b3; --accent-text: #ffffff; --grid: rgba(0,0,0,.55);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151514; --surface: #1f1f1d; --text: #ecebe7; --muted: #9c9993;
+      --border: #34332f; --empty: #2a2926; --accent: #4cb8f0; --accent-text: #0b1b26; --grid: rgba(255,255,255,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151514; --surface: #1f1f1d; --text: #ecebe7; --muted: #9c9993;
+    --border: #34332f; --empty: #2a2926; --accent: #4cb8f0; --accent-text: #0b1b26; --grid: rgba(255,255,255,.6);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1200px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 0 0 8px; }
+  h3 { font-size: 15px; margin: 16px 0 6px; }
+  p { margin: 0 0 10px; }
+  a { color: var(--accent); }
+  .muted { color: var(--muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+  .hidden { display: none !important; }
+
+  .drop {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 28px 16px; text-align: center; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .drop.over, .drop:hover { border-color: var(--accent); }
+  .drop img { max-height: 160px; max-width: 100%; border-radius: 6px; display: block; margin: 12px auto 0; }
+
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 24px; margin-top: 16px; }
+  .controls label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  .controls label.check { flex-direction: row; align-items: center; gap: 8px; color: var(--text); font-size: 14px; }
+  .controls input[type=number], .controls select {
+    font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
+  }
+  .controls .val { color: var(--text); font-weight: 600; }
+  button {
+    font: inherit; border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  details summary { cursor: pointer; font-size: 14px; margin-top: 14px; }
+  .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; margin-top: 8px; font-size: 13px; }
+  .palette label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+
+  .swatch { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); flex: none; }
+  .stats { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stats div b { display: block; font-size: 22px; }
+  .stats div span { font-size: 12px; color: var(--muted); }
+
+  .canvas-wrap { overflow: auto; max-height: 80vh; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); }
+  .canvas-wrap canvas { display: block; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .sym { font: 700 12px ui-monospace, monospace; }
+
+  .boards { display: grid; gap: 4px; margin: 8px 0 12px; width: max-content; max-width: 100%; }
+  .boards button { padding: 6px 10px; font-size: 12px; min-width: 64px; }
+  .boards button.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .boards button.blank { opacity: .45; }
+  .board-view { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .rows { font: 12.5px/1.7 ui-monospace, monospace; flex: 1 1 320px; min-width: 0; }
+  .rows div { padding: 1px 6px; border-radius: 4px; }
+  .rows div:hover { background: var(--bg); }
+  .rows b { display: inline-block; width: 64px; color: var(--muted); font-weight: 600; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; margin-right: 10px; white-space: nowrap; }
+  .chip i { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.3); display: inline-block; }
+  ol.steps { padding-left: 20px; margin: 0; }
+  ol.steps li { margin-bottom: 6px; }
+  .tip {
+    position: fixed; pointer-events: none; background: var(--text); color: var(--bg);
+    font-size: 12px; padding: 4px 8px; border-radius: 6px; display: none; z-index: 10;
+  }
+  @media print {
+    .no-print, .drop, .controls, details { display: none !important; }
+    body { background: #fff; }
+    .card { border: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Perler Pattern Maker</h1>
+  <p class="muted">Upload an image and it becomes a bead pattern with a shopping list and board-by-board instructions. Everything runs in your browser; the image never leaves your computer. <a href="viewer.html">Sailor Moon viewer →</a></p>
+
+  <section class="card no-print">
+    <div class="drop" id="drop">
+      <b>Drop an image here</b>, paste one, or click to choose a file
+      <input type="file" id="file" accept="image/*" hidden>
+      <img id="thumb" class="hidden" alt="Uploaded image">
+    </div>
+
+    <div class="controls">
+      <label>Width in beads <span class="muted" id="sizeHint"></span>
+        <input type="number" id="width" min="8" max="232" value="58">
+      </label>
+      <label>Pegboard size
+        <select id="boardSize">
+          <option value="29" selected>29 × 29 (large square)</option>
+          <option value="28">28 × 28</option>
+          <option value="14">14 × 14 (small square)</option>
+        </select>
+      </label>
+      <label>Max colors <span class="val" id="maxColorsVal"></span>
+        <input type="range" id="maxColors" min="2" max="40" value="16">
+      </label>
+      <label>Dithering
+        <select id="dither">
+          <option value="none" selected>None (clean blocks)</option>
+          <option value="fs">Floyd–Steinberg (smooth gradients)</option>
+          <option value="checker">Checkerboard (retro / screenprint)</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="cleanup" checked> Remove stray single beads</label>
+      <label class="check"><input type="checkbox" id="transparent" checked> Skip transparent areas</label>
+    </div>
+
+    <details>
+      <summary>Bead colors to use (<span id="enabledCount"></span>)</summary>
+      <p class="muted" style="margin-top:8px">Untick colors you don't own. Hex values are approximate; real beads vary by batch.</p>
+      <div class="row"><button id="allOn">All</button><button id="allOff">None</button><button id="basics">Basics only</button></div>
+      <div class="palette" id="palette"></div>
+    </details>
+  </section>
+
+  <div id="out" class="hidden">
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2>Pattern</h2>
+        <div class="row no-print">
+          <label class="row" style="font-size:14px"><input type="checkbox" id="showGrid" checked> Board lines</label>
+          <label class="row" style="font-size:14px"><input type="checkbox" id="showSyms"> Symbols</label>
+          <label class="row" style="font-size:14px">Zoom <input type="range" id="zoom" min="4" max="24" value="10"></label>
+          <button id="dlPng">Download PNG</button>
+          <button id="dlJson">Download JSON</button>
+          <button id="print">Print</button>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="canvas-wrap"><canvas id="cv"></canvas></div>
+    </section>
+
+    <section class="card">
+      <h2>Shopping list</h2>
+      <p class="muted">Counts include about 10% spare for drops and mistakes.</p>
+      <table id="shop"></table>
+    </section>
+
+    <section class="card">
+      <h2>Instructions</h2>
+      <ol class="steps" id="steps"></ol>
+    </section>
+
+    <section class="card">
+      <h2>Board by board</h2>
+      <p class="muted">Pick a board. Rows read left to right; place beads in the order listed. Work top-left to bottom-right.</p>
+      <div class="boards no-print" id="boards"></div>
+      <div id="boardDetail"></div>
+    </section>
+  </div>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+// Common Perler colors. Hex values are approximations of the physical beads.
+const PERLER = [
+  ["White", "#F1F1F1", 1], ["Cream", "#E0DEA9", 1], ["Yellow", "#ECD800", 1], ["Pastel Yellow", "#FCF375", 0],
+  ["Cheddar", "#F1AA0C", 0], ["Orange", "#ED6120", 1], ["Butterscotch", "#D18A35", 0], ["Sand", "#E3C995", 0],
+  ["Tan", "#BC9371", 1], ["Light Brown", "#815D34", 0], ["Brown", "#513931", 1], ["Rust", "#8C372C", 0],
+  ["Peach", "#EEBAB2", 1], ["Blush", "#FF8282", 0], ["Hot Coral", "#FF3254", 0], ["Red", "#BF2633", 1],
+  ["Cranapple", "#7F2C3B", 0], ["Raspberry", "#A52F5E", 0], ["Light Pink", "#F5C0D5", 0], ["Bubblegum", "#DD6698", 1],
+  ["Pink", "#E44892", 0], ["Magenta", "#F22B9B", 0], ["Plum", "#A23B92", 0], ["Purple", "#6B3F88", 1],
+  ["Pastel Lavender", "#8A72BC", 0], ["Periwinkle", "#8691D5", 0], ["Blueberry Cream", "#84A3DB", 0], ["Pastel Blue", "#6496D1", 0],
+  ["Light Blue", "#3370C0", 1], ["Turquoise", "#2B89C6", 0], ["Sky", "#3BC0E9", 0], ["Toothpaste", "#B0E8D5", 0],
+  ["Dark Blue", "#2B3F87", 1], ["Midnight", "#232B4C", 0], ["Parrot Green", "#00968C", 0], ["Light Green", "#56BA9F", 0],
+  ["Pastel Green", "#84CC6F", 0], ["Kiwi Lime", "#6CBE13", 0], ["Prickly Pear", "#BCDA5B", 0], ["Bright Green", "#4FAD42", 1],
+  ["Dark Green", "#1C753E", 1], ["Evergreen", "#2B4733", 0], ["Light Grey", "#B4B6B9", 0], ["Grey", "#8A8D91", 1],
+  ["Dark Grey", "#4D5159", 0], ["Black", "#2E2F32", 1],
+].map(([name, hex, basic], i) => ({ id: i, name, hex, basic: !!basic, rgb: hexToRgb(hex) }));
+PERLER.forEach(c => { c.lab = rgbToLab(c.rgb); });
+
+// Symbols for charts, chosen to be easy to tell apart.
+const SYMBOLS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789abdefghkmnqrtuy@#$%&+=?";
+
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function rgbToLab([r, g, b]) {
+  const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  const R = lin(r), G = lin(g), B = lin(b);
+  const f = (t) => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  const x = f((R * 0.4124 + G * 0.3576 + B * 0.1805) / 0.95047);
+  const y = f(R * 0.2126 + G * 0.7152 + B * 0.0722);
+  const z = f((R * 0.0193 + G * 0.1192 + B * 0.9505) / 1.08883);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+function isDark([r, g, b]) { return 0.299 * r + 0.587 * g + 0.114 * b < 125; }
+
+function nearest(rgb, colors) {
+  const [L, A, B] = rgbToLab(rgb);
+  let best = colors[0], bd = Infinity;
+  for (const c of colors) {
+    const d = (L - c.lab[0]) ** 2 + (A - c.lab[1]) ** 2 + (B - c.lab[2]) ** 2;
+    if (d < bd) { bd = d; best = c; }
+  }
+  return best;
+}
+
+// ---------- State ----------
+let img = null;
+let pattern = null;        // { w, h, cells: Int16Array (palette id or -1), colors: [...] }
+let selectedBoard = null;
+const enabled = new Set(PERLER.map(c => c.id));
+
+// ---------- Palette picker ----------
+function renderPalette() {
+  const host = $('palette'); host.textContent = '';
+  for (const c of PERLER) {
+    const lab = el('label');
+    const cb = el('input'); cb.type = 'checkbox'; cb.checked = enabled.has(c.id);
+    cb.onchange = () => { cb.checked ? enabled.add(c.id) : enabled.delete(c.id); updateEnabled(); };
+    const sw = el('span', 'swatch'); sw.style.background = c.hex;
+    lab.append(cb, sw, el('span', null, c.name));
+    host.append(lab);
+  }
+  updateEnabled(false);
+}
+function updateEnabled(run = true) {
+  $('enabledCount').textContent = `${enabled.size} of ${PERLER.length}`;
+  if (run) generate();
+}
+$('allOn').onclick = () => { PERLER.forEach(c => enabled.add(c.id)); renderPalette(); generate(); };
+$('allOff').onclick = () => { enabled.clear(); renderPalette(); };
+$('basics').onclick = () => { enabled.clear(); PERLER.filter(c => c.basic).forEach(c => enabled.add(c.id)); renderPalette(); generate(); };
+
+// ---------- Image input ----------
+function loadFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const url = URL.createObjectURL(file);
+  const im = new Image();
+  im.onload = () => { img = im; $('thumb').src = url; $('thumb').classList.remove('hidden'); generate(); };
+  im.src = url;
+}
+const drop = $('drop');
+drop.onclick = () => $('file').click();
+$('file').onchange = (e) => loadFile(e.target.files[0]);
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('over'); loadFile(e.dataTransfer.files[0]); };
+window.addEventListener('paste', (e) => {
+  const item = [...e.clipboardData.items].find(i => i.type.startsWith('image/'));
+  if (item) loadFile(item.getAsFile());
+});
+
+// ---------- Conversion ----------
+// Downscale in halving steps so the browser averages pixels instead of skipping them.
+function sample(w, h) {
+  let src = img, sw = img.naturalWidth, sh = img.naturalHeight;
+  while (sw / 2 > w && sh / 2 > h) {
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(sw / 2); c.height = Math.ceil(sh / 2);
+    const x = c.getContext('2d'); x.imageSmoothingQuality = 'high';
+    x.drawImage(src, 0, 0, c.width, c.height);
+    src = c; sw = c.width; sh = c.height;
+  }
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.imageSmoothingQuality = 'high';
+  x.drawImage(src, 0, 0, w, h);
+  return x.getImageData(0, 0, w, h).data;
+}
+
+function quantize(data, w, h, colors, mode, skipAlpha) {
+  const cells = new Int16Array(w * h);
+  const buf = new Float32Array(w * h * 3);
+  for (let i = 0; i < w * h; i++) { buf[i * 3] = data[i * 4]; buf[i * 3 + 1] = data[i * 4 + 1]; buf[i * 3 + 2] = data[i * 4 + 2]; }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x;
+    if (skipAlpha && data[i * 4 + 3] < 128) { cells[i] = -1; continue; }
+    let rgb = [buf[i * 3], buf[i * 3 + 1], buf[i * 3 + 2]].map(v => Math.max(0, Math.min(255, v)));
+    if (mode === 'checker') {
+      // Ordered 2×2 dither: nudge alternate beads lighter/darker so mid-tones mix optically.
+      const t = ((x + y) & 1 ? 1 : -1) * 18;
+      rgb = rgb.map(v => Math.max(0, Math.min(255, v + t)));
+    }
+    const c = nearest(rgb, colors);
+    cells[i] = c.id;
+    if (mode === 'fs') {
+      const err = [rgb[0] - c.rgb[0], rgb[1] - c.rgb[1], rgb[2] - c.rgb[2]];
+      const push = (dx, dy, f) => {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || nx >= w || ny >= h) return;
+        const j = (ny * w + nx) * 3;
+        buf[j] += err[0] * f; buf[j + 1] += err[1] * f; buf[j + 2] += err[2] * f;
+      };
+      push(1, 0, 7 / 16); push(-1, 1, 3 / 16); push(0, 1, 5 / 16); push(1, 1, 1 / 16);
+    }
+  }
+  return cells;
+}
+
+// A bead with no same-colored 4-neighbor takes the most common neighboring color.
+function removeStrays(cells, w, h) {
+  const out = cells.slice();
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x, v = cells[i];
+    if (v < 0) continue;
+    const ns = [];
+    if (x > 0) ns.push(cells[i - 1]); if (x < w - 1) ns.push(cells[i + 1]);
+    if (y > 0) ns.push(cells[i - w]); if (y < h - 1) ns.push(cells[i + w]);
+    if (ns.includes(v)) continue;
+    const tally = {}; let best = v, bc = 0;
+    for (const n of ns) { tally[n] = (tally[n] || 0) + 1; if (tally[n] > bc) { bc = tally[n]; best = n; } }
+    if (bc >= 2) out[i] = best;
+  }
+  return out;
+}
+
+function generate() {
+  const avail = PERLER.filter(c => enabled.has(c.id));
+  updateSizeHint();
+  if (!img || !avail.length) return;
+  const w = Math.max(8, Math.min(232, +$('width').value || 58));
+  const h = Math.max(1, Math.round(w * img.naturalHeight / img.naturalWidth));
+  const data = sample(w, h);
+  const mode = $('dither').value, skipAlpha = $('transparent').checked;
+
+  // Pass 1: pick the most-used colors; pass 2: re-map using only those.
+  const first = quantize(data, w, h, avail, 'none', skipAlpha);
+  const tally = new Map();
+  for (const v of first) if (v >= 0) tally.set(v, (tally.get(v) || 0) + 1);
+  const keep = [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, +$('maxColors').value).map(([id]) => PERLER[id]);
+  let cells = quantize(data, w, h, keep, mode, skipAlpha);
+  if ($('cleanup').checked && mode === 'none') cells = removeStrays(cells, w, h);
+
+  const counts = new Map();
+  for (const v of cells) if (v >= 0) counts.set(v, (counts.get(v) || 0) + 1);
+  const colors = [...counts.entries()].sort((a, b) => b[1] - a[1])
+    .map(([id, count], i) => ({ ...PERLER[id], count, sym: SYMBOLS[i] }));
+  pattern = { w, h, cells, colors, byId: new Map(colors.map(c => [c.id, c])), boardSize: +$('boardSize').value };
+  selectedBoard = null;
+  render();
+}
+
+function updateSizeHint() {
+  const bs = +$('boardSize').value, w = +$('width').value || 0;
+  const h = img ? Math.round(w * img.naturalHeight / img.naturalWidth) : null;
+  const cm = (n) => (n * 0.5).toFixed(0); // ~5 mm per fused bead
+  $('sizeHint').textContent = h ? `→ ${w}×${h}, ~${cm(w)}×${cm(h)} cm, ${Math.ceil(w / bs)}×${Math.ceil(h / bs)} boards` : `(${bs} = one board wide)`;
+}
+
+// ---------- Rendering ----------
+function drawPattern(canvas, { x0 = 0, y0 = 0, w = pattern.w, h = pattern.h, cell, grid, syms, axes = false }) {
+  const pad = axes ? 22 : 0;
+  canvas.width = w * cell + pad; canvas.height = h * cell + pad;
+  const ctx = canvas.getContext('2d');
+  const css = getComputedStyle(document.documentElement);
+  ctx.fillStyle = css.getPropertyValue('--empty').trim();
+  ctx.fillRect(pad, pad, w * cell, h * cell);
+  const r = cell / 2;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `700 ${Math.max(7, cell * 0.55)}px ui-monospace, monospace`;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (y0 + y >= pattern.h || x0 + x >= pattern.w) continue;
+    const v = pattern.cells[(y0 + y) * pattern.w + (x0 + x)];
+    if (v < 0) continue;
+    const c = pattern.byId.get(v), cx = pad + x * cell + r, cy = pad + y * cell + r;
+    ctx.fillStyle = c.hex;
+    ctx.beginPath(); ctx.arc(cx, cy, r - Math.max(0.3, cell * 0.04), 0, Math.PI * 2); ctx.fill();
+    if (syms && cell >= 9) {
+      ctx.fillStyle = isDark(c.rgb) ? 'rgba(255,255,255,.85)' : 'rgba(0,0,0,.7)';
+      ctx.fillText(c.sym, cx, cy + 0.5);
+    } else if (cell >= 6) {
+      ctx.fillStyle = 'rgba(0,0,0,.22)';
+      ctx.beginPath(); ctx.arc(cx, cy, r * 0.3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  if (grid) {
+    const bs = pattern.boardSize;
+    ctx.strokeStyle = css.getPropertyValue('--grid').trim(); ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+    for (let x = bs; x < w; x += bs) { ctx.beginPath(); ctx.moveTo(pad + x * cell, pad); ctx.lineTo(pad + x * cell, pad + h * cell); ctx.stroke(); }
+    for (let y = bs; y < h; y += bs) { ctx.beginPath(); ctx.moveTo(pad, pad + y * cell); ctx.lineTo(pad + w * cell, pad + y * cell); ctx.stroke(); }
+    ctx.setLineDash([]);
+  }
+  if (axes) {
+    ctx.fillStyle = css.getPropertyValue('--muted').trim(); ctx.font = '10px ui-monospace, monospace';
+    for (let x = 0; x < w; x++) if ((x + 1) % 5 === 0 || x === 0) ctx.fillText(x + 1, pad + x * cell + r, pad / 2);
+    for (let y = 0; y < h; y++) if ((y + 1) % 5 === 0 || y === 0) ctx.fillText(y + 1, pad / 2, pad + y * cell + r);
+    // Light guide lines every 5 beads help keep count.
+    ctx.strokeStyle = 'rgba(128,128,128,.35)'; ctx.lineWidth = 1;
+    for (let x = 5; x < w; x += 5) { ctx.beginPath(); ctx.moveTo(pad + x * cell, pad); ctx.lineTo(pad + x * cell, pad + h * cell); ctx.stroke(); }
+    for (let y = 5; y < h; y += 5) { ctx.beginPath(); ctx.moveTo(pad, pad + y * cell); ctx.lineTo(pad + w * cell, pad + y * cell); ctx.stroke(); }
+  }
+}
+
+function render() {
+  $('out').classList.remove('hidden');
+  const { w, h, colors, boardSize: bs } = pattern;
+  const total = colors.reduce((s, c) => s + c.count, 0);
+  const bx = Math.ceil(w / bs), by = Math.ceil(h / bs);
+
+  $('stats').innerHTML = '';
+  for (const [v, l] of [[`${w} × ${h}`, 'beads'], [total.toLocaleString(), 'total beads'], [colors.length, 'colors'],
+                        [`${bx} × ${by}`, `${bs}×${bs} boards`], [`~${(w * 0.5).toFixed(0)} × ${(h * 0.5).toFixed(0)} cm`, 'fused size']]) {
+    const d = el('div'); d.append(el('b', null, v), el('span', null, l)); $('stats').append(d);
+  }
+  drawMain();
+
+  // Shopping list
+  const t = $('shop'); t.innerHTML = '<tr><th>Sym</th><th>Color</th><th class="num">Beads</th><th class="num">Buy</th><th class="num">Share</th></tr>';
+  for (const c of colors) {
+    const tr = el('tr');
+    const name = el('td'); const sw = el('span', 'swatch'); sw.style.background = c.hex;
+    const wrap = el('span', 'row'); wrap.append(sw, el('span', null, c.name)); name.append(wrap);
+    tr.append(el('td', 'sym', c.sym), name, el('td', 'num', c.count.toLocaleString()),
+      el('td', 'num', Math.ceil(c.count * 1.1).toLocaleString()), el('td', 'num', (100 * c.count / total).toFixed(1) + '%'));
+    t.append(tr);
+  }
+
+  renderSteps(bx, by, colors);
+  renderBoardPicker(bx, by);
+}
+
+function drawMain() {
+  drawPattern($('cv'), { cell: +$('zoom').value, grid: $('showGrid').checked, syms: $('showSyms').checked });
+}
+['showGrid', 'showSyms', 'zoom'].forEach(id => $(id).addEventListener('input', () => pattern && drawMain()));
+
+function renderSteps(bx, by, colors) {
+  const darkest = [...colors].sort((a, b) => a.lab[0] - b.lab[0]).slice(0, 2).map(c => c.name);
+  const steps = [
+    `Gather ${bx * by} pegboard${bx * by > 1 ? 's' : ''} (${pattern.boardSize}×${pattern.boardSize}) and lock them together ${bx} wide by ${by} tall. Square pegboards interlock; check the edges line up so rows don't drift.`,
+    `Sort your beads by color using the shopping list. Each color has a symbol used in the board charts.`,
+    `Work one board at a time, starting at Board (1,1) in the top-left corner and moving right along each board row, then down.`,
+    `On each board, place the darkest colors first (${darkest.join(', ')}). They act as landmarks so you don't lose count, then fill the lighter areas around them.`,
+    `Follow the row list for each board: e.g. "4× White, 2× Black" means four white beads then two black beads, left to right. Grey "skip" means leave those pegs empty.`,
+    `When the whole piece is laid, cover it with ironing paper and iron on medium with slow circular motions for 10–20 seconds, until the beads fuse but the holes are still visible.`,
+    `For a piece spanning multiple boards, lay masking tape over the top first, press it down, then lift the whole design off the boards together and iron the untaped side.`,
+    `Let it cool flat under a heavy book so it doesn't warp. Optionally flip it and lightly iron the other side.`,
+  ];
+  $('steps').textContent = '';
+  for (const s of steps) $('steps').append(el('li', null, s));
+}
+
+function renderBoardPicker(bx, by) {
+  const host = $('boards'); host.textContent = '';
+  host.style.gridTemplateColumns = `repeat(${bx}, auto)`;
+  for (let r = 0; r < by; r++) for (let c = 0; c < bx; c++) {
+    const n = boardCount(r, c);
+    const b = el('button', n ? '' : 'blank', `(${r + 1},${c + 1})`);
+    b.title = `${n} beads`;
+    b.onclick = () => { selectedBoard = [r, c]; renderBoardPicker(bx, by); renderBoard(r, c); };
+    if (selectedBoard && selectedBoard[0] === r && selectedBoard[1] === c) b.classList.add('on');
+    host.append(b);
+  }
+  if (!selectedBoard) { selectedBoard = [0, 0]; host.firstChild.classList.add('on'); renderBoard(0, 0); }
+}
+
+function boardBounds(r, c) {
+  const bs = pattern.boardSize, x0 = c * bs, y0 = r * bs;
+  return { x0, y0, w: Math.min(bs, pattern.w - x0), h: Math.min(bs, pattern.h - y0) };
+}
+function boardCount(r, c) {
+  const { x0, y0, w, h } = boardBounds(r, c); let n = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (pattern.cells[(y0 + y) * pattern.w + x0 + x] >= 0) n++;
+  return n;
+}
+
+function renderBoard(r, c) {
+  const { x0, y0, w, h } = boardBounds(r, c);
+  const host = $('boardDetail'); host.textContent = '';
+  const used = new Map();
+  host.append(el('h3', null, `Board (${r + 1},${c + 1}) — pattern rows ${y0 + 1}–${y0 + h}, columns ${x0 + 1}–${x0 + w}`));
+
+  const view = el('div', 'board-view');
+  const cv = el('canvas');
+  const cell = Math.max(14, Math.min(22, Math.floor(620 / Math.max(w, h))));
+  drawPattern(cv, { x0, y0, w, h, cell, grid: false, syms: true, axes: true });
+  cv.style.maxWidth = '100%';
+  view.append(cv);
+
+  // Row-by-row runs: "3× White, 2× Black".
+  const rows = el('div', 'rows');
+  for (let y = 0; y < h; y++) {
+    const line = el('div'); line.append(el('b', null, `Row ${y + 1}`));
+    let x = 0;
+    while (x < w) {
+      const v = pattern.cells[(y0 + y) * pattern.w + x0 + x];
+      let n = 1; while (x + n < w && pattern.cells[(y0 + y) * pattern.w + x0 + x + n] === v) n++;
+      const chip = el('span', 'chip');
+      if (v < 0) { chip.append(el('span', 'muted', `skip ${n}`)); }
+      else {
+        const col = pattern.byId.get(v); used.set(v, (used.get(v) || 0) + n);
+        const dot = el('i'); dot.style.background = col.hex;
+        chip.append(dot, el('span', null, `${n}× ${col.name}`));
+      }
+      line.append(chip); x += n;
+    }
+    rows.append(line);
+  }
+  view.append(rows);
+
+  const legend = el('p', 'muted');
+  legend.textContent = 'This board: ' + [...used.entries()].sort((a, b) => b[1] - a[1])
+    .map(([id, n]) => { const col = pattern.byId.get(id); return `${col.sym} ${col.name} ×${n}`; }).join(' · ');
+  host.append(legend, view);
+}
+
+// Hover info on the main canvas
+const tip = $('tip');
+$('cv').addEventListener('mousemove', (e) => {
+  if (!pattern) return;
+  const rect = e.target.getBoundingClientRect(), cell = +$('zoom').value;
+  const x = Math.floor((e.clientX - rect.left) / cell), y = Math.floor((e.clientY - rect.top) / cell);
+  if (x < 0 || y < 0 || x >= pattern.w || y >= pattern.h) { tip.style.display = 'none'; return; }
+  const v = pattern.cells[y * pattern.w + x], bs = pattern.boardSize;
+  tip.textContent = `Row ${y + 1}, col ${x + 1} · Board (${Math.floor(y / bs) + 1},${Math.floor(x / bs) + 1}) · ` +
+    (v < 0 ? 'empty' : pattern.byId.get(v).name);
+  tip.style.display = 'block';
+  tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px';
+  tip.style.top = (e.clientY + 14) + 'px';
+});
+$('cv').addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+$('cv').addEventListener('click', (e) => {
+  const rect = e.target.getBoundingClientRect(), cell = +$('zoom').value, bs = pattern.boardSize;
+  const r = Math.floor((e.clientY - rect.top) / cell / bs), c = Math.floor((e.clientX - rect.left) / cell / bs);
+  selectedBoard = [r, c];
+  renderBoardPicker(Math.ceil(pattern.w / bs), Math.ceil(pattern.h / bs)); renderBoard(r, c);
+  $('boardDetail').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ---------- Export ----------
+function download(name, blob) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$('dlPng').onclick = () => {
+  const c = document.createElement('canvas');
+  drawPattern(c, { cell: 16, grid: true, syms: true, axes: true });
+  c.toBlob(b => download('perler-pattern.png', b));
+};
+$('dlJson').onclick = () => {
+  const { w, h, cells, colors, boardSize } = pattern;
+  const sym = (v) => v < 0 ? '.' : pattern.byId.get(v).sym;
+  const rows = []; for (let y = 0; y < h; y++) { let s = ''; for (let x = 0; x < w; x++) s += sym(cells[y * w + x]); rows.push(s); }
+  const out = {
+    width: w, height: h, boardSize,
+    boards: { cols: Math.ceil(w / boardSize), rows: Math.ceil(h / boardSize) },
+    rowFormat: "One character per bead; look it up in 'legend'. '.' = empty peg.",
+    legend: Object.fromEntries(colors.map(c => [c.sym, { name: c.name, hex: c.hex, count: c.count }])),
+    rows,
+  };
+  download('perler-pattern.json', new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }));
+};
+$('print').onclick = () => window.print();
+
+// ---------- Wire up ----------
+for (const id of ['width', 'boardSize', 'maxColors', 'dither', 'cleanup', 'transparent'])
+  $(id).addEventListener(id === 'width' || id === 'maxColors' ? 'input' : 'change', () => {
+    $('maxColorsVal').textContent = $('maxColors').value; generate();
+  });
+$('maxColorsVal').textContent = $('maxColors').value;
+renderPalette();
+updateSizeHint();
+</script>
+</body>
+</html>
